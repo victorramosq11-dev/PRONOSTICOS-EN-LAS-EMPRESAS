@@ -1,0 +1,1362 @@
+<!DOCTYPE html>
+<html lang="es" class="h-full bg-slate-50">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guía de Aprendizaje Interactiva: Pronósticos de Demanda</title>
+    <!-- Tailwind CSS CDN para estilos rápidos, modernos y adaptables -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts - Inter para una tipografía ultra-legible -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        sena: {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            600: '#16a34a',
+                            700: '#15803d',
+                            800: '#166534',
+                            DEFAULT: '#39A900', // Verde SENA Institucional
+                        },
+                        darkAccent: '#0B132B',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .focus-ring:focus-visible {
+            outline: 3px solid #39A900;
+            outline-offset: 2px;
+        }
+        .transition-all-custom {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        /* Ocultar barra de desplazamiento por defecto para una experiencia SPA limpia */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="font-sans text-slate-800 flex flex-col min-h-full antialiased selection:bg-sena-100 selection:text-sena-800">
+
+    <!-- ZONA OCULTA PARA MENSAJES DE ESTADO DE LECTOR DE PANTALLA (WCAG 4.1.3) -->
+    <div id="aria-status-announcer" class="sr-only" aria-live="polite" role="status"></div>
+
+    <!-- HEADER / BARRA DE PROGRESO GENERAL -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <!-- Logotipo / Identidad del Curso -->
+                <div class="flex items-center space-x-3">
+                    <div class="bg-sena p-2 rounded-lg text-white shadow-md flex items-center justify-center" aria-hidden="true">
+                        <!-- Icono SVG de Tendencia/Pronóstico -->
+                        <svg class="w-6 h-6 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <span class="text-xs font-bold uppercase tracking-widest text-sena">Formación Profesional</span>
+                        <h1 class="text-base sm:text-lg font-extrabold text-slate-900 tracking-tight leading-none">Pronósticos en las Empresas</h1>
+                    </div>
+                </div>
+
+                <!-- Puntaje y Progreso del Aprendiz -->
+                <div class="flex items-center space-x-4">
+                    <div class="bg-slate-100 px-3 py-1.5 rounded-full text-sm font-semibold flex items-center space-x-2 text-slate-700" aria-live="polite">
+                        <span>Puntos:</span>
+                        <span id="puntos-globales" class="text-sena font-bold">0</span>
+                        <span>🌟</span>
+                    </div>
+                    <div class="hidden md:flex items-center space-x-2">
+                        <span class="text-xs text-slate-500 font-medium">Progreso Global:</span>
+                        <div class="w-24 bg-slate-200 rounded-full h-2">
+                            <div id="progreso-barra-superior" class="bg-sena h-2 rounded-full transition-all duration-500" style="width: 5%"></div>
+                        </div>
+                        <span id="progreso-texto-superior" class="text-xs font-bold text-slate-700">5%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Indicador de Pasos del Microaprendizaje (Gagné 9 Momentos) -->
+        <nav class="bg-slate-50 border-t border-slate-200" aria-label="Pasos de la Guía">
+            <div class="max-w-7xl mx-auto px-4 overflow-x-auto no-scrollbar">
+                <ol role="list" class="flex space-x-8 min-w-[600px] py-3.5 text-xs font-semibold uppercase tracking-wider text-slate-500">
+                    <li id="nav-step-1" class="flex items-center space-x-2 text-sena font-bold border-b-2 border-sena pb-1 transition-all-custom">
+                        <span class="flex items-center justify-center w-5 h-5 bg-sena text-white rounded-full text-[10px]">1</span>
+                        <span>Micro 1: El Reto</span>
+                    </li>
+                    <li id="nav-step-2" class="flex items-center space-x-2 pb-1 border-b-2 border-transparent transition-all-custom">
+                        <span class="flex items-center justify-center w-5 h-5 bg-slate-300 text-slate-700 rounded-full text-[10px]">2</span>
+                        <span>Micro 2: El Contenido</span>
+                    </li>
+                    <li id="nav-step-3" class="flex items-center space-x-2 pb-1 border-b-2 border-transparent transition-all-custom">
+                        <span class="flex items-center justify-center w-5 h-5 bg-slate-300 text-slate-700 rounded-full text-[10px]">3</span>
+                        <span>Micro 3: La Aplicación</span>
+                    </li>
+                    <li id="nav-step-4" class="flex items-center space-x-2 pb-1 border-b-2 border-transparent transition-all-custom">
+                        <span class="flex items-center justify-center w-5 h-5 bg-slate-300 text-slate-700 rounded-full text-[10px]">4</span>
+                        <span>Micro 4: Evaluación</span>
+                    </li>
+                </ol>
+            </div>
+        </nav>
+    </header>
+
+    <!-- CUERPO PRINCIPAL (SPA CONTENEDOR) -->
+    <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 flex flex-col justify-center">
+
+        <!-- ==================== MICRO 1: EL RETO ==================== -->
+        <section id="micro-1" class="space-y-6 animate-fade-in block" aria-labelledby="m1-title">
+            <div class="flex flex-col md:flex-row gap-6 items-center">
+                <div class="flex-1 space-y-4">
+                    <span class="bg-sena-100 text-sena-800 text-xs px-3 py-1 rounded-full font-bold uppercase tracking-wider">Momento 1: Captar la Atención</span>
+                    <h2 id="m1-title" class="text-3xl font-extrabold text-slate-900 tracking-tight">El Dilema de Compaq Computer: ¿Instinto o Datos?</h2>
+                    
+                    <p class="text-slate-600 leading-relaxed text-sm sm:text-base">
+                        En los años 80, la gigante <strong>Compaq Computer Corporation</strong> se enfrentaba a una crisis existencial: su archirrival IBM estaba a punto de dominar por completo el nuevo mercado de las computadoras portátiles. Compaq requería de una inversión multimillonaria para responder, pero la dirección y volatilidad del mercado hacían imposible decidir el rumbo adecuado usando el simple instinto.
+                    </p>
+
+                    <!-- Tarjeta de Alerta Estilo SENA (Desafío) -->
+                    <div class="bg-amber-50 border-l-4 border-amber-500 p-4 rounded-r-lg shadow-sm" role="region" aria-label="Desafío del Día">
+                        <div class="flex">
+                            <div class="flex-shrink-0" aria-hidden="true">
+                                <span class="text-2xl">🔥</span>
+                            </div>
+                            <div class="ml-3">
+                                <h3 class="text-sm font-bold text-amber-800 uppercase tracking-wider">El Desafío del Día</h3>
+                                <div class="mt-1 text-sm text-amber-700 space-y-1">
+                                    <p>¿Cómo puede Compaq predecir el comportamiento del mercado de computadoras de escritorio y asegurar ventas multimillonarias sin arriesgar su capital?</p>
+                                    <p class="font-semibold mt-2">La respuesta fue: Implementando una metodología científica de Pronóstico de Demanda.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Ilustración Vectorial Interactiva del Reto -->
+                <div class="w-full md:w-5/12 max-w-sm bg-white p-6 rounded-2xl shadow-md border border-slate-200">
+                    <div class="text-center space-y-4">
+                        <span class="text-xs font-bold text-slate-400 block uppercase">Caso de Éxito Compaq (1983-1991)</span>
+                        
+                        <!-- Visualizador Gráfico Reactivo de Crecimiento -->
+                        <div class="h-44 bg-slate-900 rounded-xl p-4 flex flex-col justify-between text-white relative overflow-hidden">
+                            <div class="absolute inset-0 opacity-10 bg-[radial-gradient(#39A900_1px,transparent_1px)] [background-size:16px_16px]"></div>
+                            <div class="flex justify-between items-center z-10">
+                                <span class="text-[10px] font-bold text-sena tracking-widest">VENTAS DE COMPAQ</span>
+                                <span class="text-xs text-slate-400">Miles de millones USD</span>
+                            </div>
+                            <div class="flex items-end justify-between h-24 space-x-2 z-10">
+                                <div class="flex-1 flex flex-col items-center">
+                                    <span class="text-[9px] text-slate-400 mb-1">$111M</span>
+                                    <div class="w-full bg-slate-700 rounded-t h-4 transition-all duration-500 hover:bg-sena"></div>
+                                    <span class="text-[8px] mt-1 text-slate-500">1983</span>
+                                </div>
+                                <div class="flex-1 flex flex-col items-center">
+                                    <span class="text-[9px] text-slate-400 mb-1">$329M</span>
+                                    <div class="w-full bg-slate-600 rounded-t h-8 transition-all duration-500 hover:bg-sena"></div>
+                                    <span class="text-[8px] mt-1 text-slate-500">1984</span>
+                                </div>
+                                <div class="flex-1 flex flex-col items-center">
+                                    <span class="text-[9px] text-sena font-bold mb-1">$3.6B</span>
+                                    <div class="w-full bg-sena rounded-t h-20 transition-all duration-500 hover:bg-sena-700"></div>
+                                    <span class="text-[8px] mt-1 text-sena font-semibold">1991</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <p class="text-xs text-slate-500 italic">Gracias a pronósticos de demanda asertivos, Compaq creció más del 3,100% en menos de una década.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Momento 2: Evaluación Diagnóstica Inicial (Sondeo sin Puntaje - WCAG 2.5.3) -->
+            <div class="bg-white border border-slate-200 rounded-xl p-6 shadow-sm space-y-4" role="region" aria-labelledby="diagnostico-titulo">
+                <div class="flex items-center space-x-2">
+                    <span class="text-xl" aria-hidden="true">🧠</span>
+                    <h3 id="diagnostico-titulo" class="text-lg font-bold text-slate-900">Sondeo Diagnóstico: Conexión de Saberes Previos</h3>
+                </div>
+                <p class="text-slate-600 text-sm">
+                    Para conectarnos con tus experiencias previas: Si lideraras una tienda o taller, ¿cuál de los siguientes factores consideras que representa el **mayor desafío** para planificar tu producción semanal de forma eficiente? (Este sondeo no asigna puntaje, busca activar tu análisis de operaciones).
+                </p>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2" role="group" aria-label="Opciones del sondeo diagnóstico">
+                    <button onclick="responderDiagnostico('incontrolable')" class="focus-ring p-4 rounded-xl border border-slate-200 text-left hover:border-sena hover:bg-sena-50 transition-all-custom flex items-start space-x-3" aria-label="Sondeo Opción A: Los factores incontrolables como la demanda de los clientes y la competencia">
+                        <span class="text-xl" aria-hidden="true">🔮</span>
+                        <div>
+                            <h4 class="font-bold text-sm text-slate-800">Factores Incontrolables</h4>
+                            <p class="text-xs text-slate-500">La variación súbita de la demanda y el comportamiento impredecible del cliente.</p>
+                        </div>
+                    </button>
+                    <button onclick="responderDiagnostico('controlable')" class="focus-ring p-4 rounded-xl border border-slate-200 text-left hover:border-sena hover:bg-sena-50 transition-all-custom flex items-start space-x-3" aria-label="Sondeo Opción B: Los factores controlables internos como el diseño de nuestro producto o el precio">
+                        <span class="text-xl" aria-hidden="true">⚙️</span>
+                        <div>
+                            <h4 class="font-bold text-sm text-slate-800">Factores Controlables</h4>
+                            <p class="text-xs text-slate-500">Alinear nuestros precios y la logística interna de almacenamiento de manera fluida.</p>
+                        </div>
+                    </button>
+                </div>
+                <div id="feedback-diagnostico" class="hidden text-sm bg-sena-50 text-sena-800 p-4 rounded-lg border border-sena-100 transition-all duration-300" role="alert"></div>
+            </div>
+
+            <!-- Botón de Navegación -->
+            <div class="flex justify-end pt-4">
+                <button onclick="irAMicro(2)" class="focus-ring bg-sena hover:bg-sena-700 text-white font-bold py-3 px-6 rounded-xl shadow-md flex items-center space-x-2 transition-all-custom group">
+                    <span>Ir a Micro 2: El Contenido</span>
+                    <svg class="w-5 h-5 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"></path></svg>
+                </button>
+            </div>
+        </section>
+
+
+        <!-- ==================== MICRO 2: EL CONTENIDO Y EVALUACIÓN FORMATIVA ==================== -->
+        <section id="micro-2" class="space-y-6 animate-fade-in hidden" aria-labelledby="m2-title">
+            <div class="space-y-4">
+                <span class="bg-sena-100 text-sena-800 text-xs px-3 py-1 rounded-full font-bold uppercase tracking-wider">Momento 3: Informar Objetivos de Aprendizaje</span>
+                
+                <!-- Imagen antes del Resultado de Aprendizaje y Competencia -->
+                <div class="w-full flex justify-center">
+                    <img src="IMAGEN/pronóstico+de+la+demanad+con+IA.webp" alt="Planificación y Análisis de Pronósticos Corporativos" class="w-full max-w-2xl h-auto max-h-72 object-cover rounded-2xl shadow-md border border-slate-200/80 transition-all duration-300 hover:shadow-lg" onerror="this.src='https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=800&q=80'">
+                </div>
+
+                <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+                    <h2 id="m2-title" class="text-xl font-bold text-slate-900 mb-2">Resultado de Aprendizaje y Competencia</h2>
+                    <p class="text-sm text-slate-600">
+                        Al completar este microaprendizaje, estarás capacitado para <strong>evaluar y proyectar el flujo de la demanda de bienes y servicios</strong> utilizando modelos cuantitativos de ingeniería de operaciones para optimizar la toma de decisiones.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Momento 4: Presentar el Contenido (Estructurado interactivo con Tabs) -->
+            <div class="space-y-4">
+                <span class="bg-sena-100 text-sena-800 text-xs px-3 py-1 rounded-full font-bold uppercase tracking-wider">Momento 4: Presentar el Contenido Teórico</span>
+                
+                <!-- Barra de Tabs Conceptuales -->
+                <div class="border-b border-slate-200">
+                    <nav class="flex space-x-6" aria-label="Temáticas de Contenido">
+                        <button onclick="cambiarTabContenido(1)" id="tab-btn-1" class="focus-ring border-sena text-sena py-3 px-1 border-b-2 font-bold text-sm flex items-center space-x-2 transition-all-custom">
+                            <span>⚖️ Factores y Horizontes</span>
+                        </button>
+                        <button onclick="cambiarTabContenido(2)" id="tab-btn-2" class="focus-ring border-transparent text-slate-500 hover:text-slate-700 py-3 px-1 border-b-2 font-medium text-sm flex items-center space-x-2 transition-all-custom">
+                            <span>📦 Variables Críticas</span>
+                        </button>
+                        <button onclick="cambiarTabContenido(3)" id="tab-btn-3" class="focus-ring border-transparent text-slate-500 hover:text-slate-700 py-3 px-1 border-b-2 font-medium text-sm flex items-center space-x-2 transition-all-custom">
+                            <span>🔢 Modelos Matemáticos</span>
+                        </button>
+                    </nav>
+                </div>
+
+                <!-- CONTENIDO TABS -->
+                <!-- Tab 1: Factores y Horizontes -->
+                <div id="tab-content-1" class="space-y-6 block animate-fade-in">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="bg-white border border-slate-200 p-6 rounded-xl shadow-sm space-y-4">
+                            <h3 class="text-base font-bold text-slate-900 border-b pb-2 flex items-center space-x-2">
+                                <span class="text-sena" aria-hidden="true">⚡</span>
+                                <span>Factores Controlables vs. Incontrolables</span>
+                            </h3>
+                            <div class="space-y-3">
+                                <div class="p-3 bg-emerald-50 rounded-lg border border-emerald-100">
+                                    <span class="font-bold text-xs text-emerald-800 uppercase block">Controlables (Internos)</span>
+                                    <p class="text-xs text-slate-600 mt-1">El producto, el precio (fijado a partir del costo y margen), la promoción/publicidad y los canales de distribución empleados por la empresa.</p>
+                                </div>
+                                <div class="p-3 bg-rose-50 rounded-lg border border-rose-100">
+                                    <span class="font-bold text-xs text-rose-800 uppercase block">Incontrolables (Externos)</span>
+                                    <p class="text-xs text-slate-600 mt-1">La demanda del consumidor, las estrategias de la competencia, las leyes de comercio mercantil, el ambiente político estatal y las modas cambiantes.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-white border border-slate-200 p-6 rounded-xl shadow-sm space-y-4">
+                            <h3 class="text-base font-bold text-slate-900 border-b pb-2 flex items-center space-x-2">
+                                <span class="text-sena" aria-hidden="true">⏳</span>
+                                <span>Horizontes del Pronóstico</span>
+                            </h3>
+                            <ul class="space-y-3 text-xs text-slate-600">
+                                <li class="flex items-start space-x-2">
+                                    <strong class="text-slate-800 w-24 flex-shrink-0">Corto Plazo:</strong>
+                                    <span>Hasta 1 año (Generalmente semanas/meses). Esencial para compras de stock, abastecimiento inmediato y programación de planta.</span>
+                                </li>
+                                <li class="flex items-start space-x-2">
+                                    <strong class="text-slate-800 w-24 flex-shrink-0">Mediano Plazo:</strong>
+                                    <span>De 3 meses a 3 años. Crucial para la planificación agregada de producción, presupuestos de caja y análisis de planes de operación.</span>
+                                </li>
+                                <li class="flex items-start space-x-2">
+                                    <strong class="text-slate-800 w-24 flex-shrink-0">Largo Plazo:</strong>
+                                    <span>De 3 a más años. Estratégico para el diseño de nuevos productos, localización/expansión de plantas productivas, e inversión en I+D.</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab 2: Variables Críticas de Inventario -->
+                <div id="tab-content-2" class="space-y-6 hidden animate-fade-in">
+                    <div class="bg-white border border-slate-200 p-6 rounded-xl shadow-sm">
+                        <h3 class="text-base font-bold text-slate-900 mb-4">¿Qué alimenta a un sistema de previsión asertivo?</h3>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                            <div class="border border-slate-100 hover:border-sena p-4 rounded-xl transition-all-custom cursor-help" title="Inventario disponible actualmente en bodega para su uso inmediato.">
+                                <span class="text-xl" aria-hidden="true">📦</span>
+                                <h4 class="font-bold text-sm text-slate-800 mt-2">Inventario Actual (On Hand)</h4>
+                                <p class="text-xs text-slate-500 mt-1">El stock real físico en almacén. Permite calcular con precisión las compras de reposición.</p>
+                            </div>
+                            <div class="border border-slate-100 hover:border-sena p-4 rounded-xl transition-all-custom cursor-help" title="Pedidos ya solicitados al proveedor pero en tránsito.">
+                                <span class="text-xl" aria-hidden="true">🚢</span>
+                                <h4 class="font-bold text-sm text-slate-800 mt-2">En Tránsito (On Order)</h4>
+                                <p class="text-xs text-slate-500 mt-1">Órdenes de compra ya cursadas que llegarán para reabastecer el inventario en camino.</p>
+                            </div>
+                            <div class="border border-slate-100 hover:border-sena p-4 rounded-xl transition-all-custom cursor-help" title="Amortiguador de stock ante variabilidades imprevistas.">
+                                <span class="text-xl" aria-hidden="true">🛡️</span>
+                                <h4 class="font-bold text-sm text-slate-800 mt-2">Stock de Seguridad (SS)</h4>
+                                <p class="text-xs text-slate-500 mt-1">Inventario de amortiguación dinámico dependiente de la venta: $SS = f(\text{Venta o Consumo})$.</p>
+                            </div>
+                            <div class="border border-slate-100 hover:border-sena p-4 rounded-xl transition-all-custom cursor-help" title="Tiempo total de abastecimiento de proveedores.">
+                                <span class="text-xl" aria-hidden="true">⏱️</span>
+                                <h4 class="font-bold text-sm text-slate-800 mt-2">Lead Time (LT)</h4>
+                                <p class="text-xs text-slate-500 mt-1">Tiempo total que transcurre desde la orden hasta que la mercadería está en bodega.</p>
+                            </div>
+                            <div class="border border-slate-100 hover:border-sena p-4 rounded-xl transition-all-custom cursor-help" title="Pedidos vencidos o pendientes de entrega.">
+                                <span class="text-xl" aria-hidden="true">⚠️</span>
+                                <h4 class="font-bold text-sm text-slate-800 mt-2">Back Order / Back Log</h4>
+                                <p class="text-xs text-slate-500 mt-1">Representa la cantidad de pedidos no atendidos (por vencer) o vencidos acumulados.</p>
+                            </div>
+                            <div class="border border-slate-100 hover:border-sena p-4 rounded-xl transition-all-custom cursor-help" title="Previsión estimada por los ejecutivos de venta.">
+                                <span class="text-xl" aria-hidden="true">🎯</span>
+                                <h4 class="font-bold text-sm text-slate-800 mt-2">Previsión Comercial</h4>
+                                <p class="text-xs text-slate-500 mt-1">Aporte cualitativo del equipo comercial en contacto directo con los clientes en el mercado.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab 3: Modelos Cuantitativos vs Cualitativos -->
+                <div id="tab-content-3" class="space-y-6 hidden animate-fade-in">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="bg-white border border-slate-200 p-6 rounded-xl shadow-sm space-y-4">
+                            <span class="bg-amber-100 text-amber-800 text-[10px] font-bold px-2.5 py-1 rounded-full uppercase">Métodos Cualitativos (Juicios de Opinión)</span>
+                            <p class="text-xs text-slate-600">Útiles cuando no hay histórico (ej. lanzamiento de un nuevo producto). Se basan en intuición, experiencia y opinión experta.</p>
+                            <ul class="space-y-2 text-xs font-semibold text-slate-700">
+                                <li class="flex items-center space-x-2"><span aria-hidden="true">👥</span> <span>Método Delphi (Panel de expertos ciegos)</span></li>
+                                <li class="flex items-center space-x-2"><span aria-hidden="true">🛍️</span> <span>Encuestas de intenciones del comprador</span></li>
+                                <li class="flex items-center space-x-2"><span aria-hidden="true">👔</span> <span>Juicio y opinión de ejecutivos</span></li>
+                                <li class="flex items-center space-x-2"><span aria-hidden="true">🤝</span> <span>Participación de la fuerza de ventas</span></li>
+                            </ul>
+                        </div>
+
+                        <div class="bg-white border border-slate-200 p-6 rounded-xl shadow-sm space-y-4">
+                            <span class="bg-sena-100 text-sena-800 text-[10px] font-bold px-2.5 py-1 rounded-full uppercase">Métodos Cuantitativos (Matemáticos)</span>
+                            <p class="text-xs text-slate-600">Modelos lógicos basados puramente en datos históricos objetivos y matemáticos de la demanda pasada del mercado.</p>
+                            <div class="space-y-2 text-xs text-slate-700 font-semibold">
+                                <div class="flex justify-between items-center border-b pb-1">
+                                    <span>1. Promedio Móvil Simple</span>
+                                    <span class="text-[10px] text-slate-500 font-normal">Suaviza fluctuaciones temporales</span>
+                                </div>
+                                <div class="flex justify-between items-center border-b pb-1">
+                                    <span>2. Promedio Móvil Ponderado</span>
+                                    <span class="text-[10px] text-slate-500 font-normal">Prioriza datos recientes con pesos</span>
+                                </div>
+                                <div class="flex justify-between items-center border-b pb-1">
+                                    <span>3. Suavización Exponencial Simple</span>
+                                    <span class="text-[10px] text-slate-500 font-normal">Aplica constante de suavidad $\alpha$</span>
+                                </div>
+                                <div class="flex justify-between items-center border-b pb-1">
+                                    <span>4. Regresión Lineal</span>
+                                    <span class="text-[10px] text-slate-500 font-normal">Proyección matemática de tendencia</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Momento 5: Evaluación Formativa Automatizada del Micro 2 -->
+            <div class="bg-white border border-slate-200 rounded-xl p-6 shadow-sm space-y-6" role="region" aria-labelledby="formativa-titulo">
+                <div class="border-b border-slate-100 pb-3">
+                    <h3 id="formativa-titulo" class="text-lg font-bold text-slate-900 flex items-center space-x-2">
+                        <span class="text-sena" aria-hidden="true">📝</span>
+                        <span>Evaluación Formativa: Consolidando Conceptos</span>
+                    </h3>
+                    <p class="text-xs text-slate-500 mt-1">Completa esta breve prueba formativa para asegurar tu dominio conceptual sobre el contenido segmentado.</p>
+                </div>
+
+                <!-- Preguntas de Evaluación Formativa M2 -->
+                <div class="space-y-6">
+                    <!-- Pregunta 1 -->
+                    <div class="space-y-3">
+                        <p class="text-sm font-bold text-slate-800" id="fmt-p1-desc">1. ¿Cuál de los siguientes factores está clasificado rigurosamente como un factor CONTROLABLE por la empresa?</p>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3" role="radiogroup" aria-labelledby="fmt-p1-desc">
+                            <button onclick="responderFormativa(1, 'incorrecto', 'A')" id="btn-fmt-1-A" class="focus-ring p-3 text-left rounded-lg border border-slate-200 hover:border-sena hover:bg-slate-50 text-xs font-semibold flex items-center justify-between transition-all-custom" aria-label="Opción A: Las tendencias de moda de los consumidores">
+                                <span>A. Las tendencias de moda de los consumidores.</span>
+                                <span id="icon-fmt-1-A" class="text-sm"></span>
+                            </button>
+                            <button onclick="responderFormativa(1, 'correcto', 'B')" id="btn-fmt-1-B" class="focus-ring p-3 text-left rounded-lg border border-slate-200 hover:border-sena hover:bg-slate-50 text-xs font-semibold flex items-center justify-between transition-all-custom" aria-label="Opción B: El precio establecido para el producto de venta">
+                                <span>B. El precio establecido para el producto de venta.</span>
+                                <span id="icon-fmt-1-B" class="text-sm"></span>
+                            </button>
+                        </div>
+                        <p id="feedback-fmt-1" class="hidden p-3 rounded-lg text-xs font-semibold transition-all duration-300"></p>
+                    </div>
+
+                    <!-- Pregunta 2 -->
+                    <div class="space-y-3">
+                        <p class="text-sm font-bold text-slate-800" id="fmt-p2-desc">2. Respecto al Stock de Seguridad (SS) de una empresa, ¿cuál definición técnica es la correcta?</p>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3" role="radiogroup" aria-labelledby="fmt-p2-desc">
+                            <button onclick="responderFormativa(2, 'correcto', 'A')" id="btn-fmt-2-A" class="focus-ring p-3 text-left rounded-lg border border-slate-200 hover:border-sena hover:bg-slate-50 text-xs font-semibold flex items-center justify-between transition-all-custom" aria-label="Opción A: Es dinámico y depende directamente de la fluctuación del consumo y venta">
+                                <span>A. Es dinámico y depende directamente de la fluctuación del consumo y venta.</span>
+                                <span id="icon-fmt-2-A" class="text-sm"></span>
+                            </button>
+                            <button onclick="responderFormativa(2, 'incorrecto', 'B')" id="btn-fmt-2-B" class="focus-ring p-3 text-left rounded-lg border border-slate-200 hover:border-sena hover:bg-slate-50 text-xs font-semibold flex items-center justify-between transition-all-custom" aria-label="Opción B: Es una cantidad fija e inamovible establecida para todo el año fiscal">
+                                <span>B. Es una cantidad fija e inamovible establecida para todo el año fiscal.</span>
+                                <span id="icon-fmt-2-B" class="text-sm"></span>
+                            </button>
+                        </div>
+                        <p id="feedback-fmt-2" class="hidden p-3 rounded-lg text-xs font-semibold transition-all duration-300"></p>
+                    </div>
+
+                    <!-- Pregunta 3 -->
+                    <div class="space-y-3">
+                        <p class="text-sm font-bold text-slate-800" id="fmt-p3-desc">3. ¿Qué modelo de pronósticos de demanda es más recomendable implementar si NO se dispone de ningún dato histórico de ventas?</p>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3" role="radiogroup" aria-labelledby="fmt-p3-desc">
+                            <button onclick="responderFormativa(3, 'incorrecto', 'A')" id="btn-fmt-3-A" class="focus-ring p-3 text-left rounded-lg border border-slate-200 hover:border-sena hover:bg-slate-50 text-xs font-semibold flex items-center justify-between transition-all-custom" aria-label="Opción A: El modelo cuantitativo de Regresión Lineal de tendencias">
+                                <span>A. El modelo cuantitativo de Regresión Lineal de tendencias.</span>
+                                <span id="icon-fmt-3-A" class="text-sm"></span>
+                            </button>
+                            <button onclick="responderFormativa(3, 'correcto', 'B')" id="btn-fmt-3-B" class="focus-ring p-3 text-left rounded-lg border border-slate-200 hover:border-sena hover:bg-slate-50 text-xs font-semibold flex items-center justify-between transition-all-custom" aria-label="Opción B: Métodos cualitativos como encuestas de intenciones o Método Delphi">
+                                <span>B. Métodos cualitativos como encuestas de intenciones o Método Delphi.</span>
+                                <span id="icon-fmt-3-B" class="text-sm"></span>
+                            </button>
+                        </div>
+                        <p id="feedback-fmt-3" class="hidden p-3 rounded-lg text-xs font-semibold transition-all duration-300"></p>
+                    </div>
+                </div>
+
+                <!-- Pantalla de Resumen / Retroalimentación Diferida -->
+                <div id="resumen-diferido-m2" class="hidden bg-slate-100 p-5 rounded-2xl border border-slate-200 space-y-3 transition-all duration-500 animate-fade-in">
+                    <h4 class="text-sm font-extrabold text-slate-800 uppercase tracking-wide flex items-center space-x-2">
+                        <span>📊 Reporte Formativo y Plan de Refuerzo</span>
+                    </h4>
+                    <p class="text-xs text-slate-600">
+                        Has finalizado la evaluación formativa. De acuerdo con tus respuestas, hemos elaborado este plan de acción dinámico para potenciar tus áreas de oportunidad:
+                    </p>
+                    <ul id="lista-refuerzo" class="space-y-2 text-xs font-semibold text-slate-700">
+                        <!-- Generado dinámicamente -->
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Botones de Navegación -->
+            <div class="flex justify-between pt-4">
+                <button onclick="irAMicro(1)" class="focus-ring bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold py-3 px-6 rounded-xl flex items-center space-x-2 transition-all-custom">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"></path></svg>
+                    <span>Volver a El Reto</span>
+                </button>
+                <button onclick="irAMicro(3)" class="focus-ring bg-sena hover:bg-sena-700 text-white font-bold py-3 px-6 rounded-xl shadow-md flex items-center space-x-2 transition-all-custom group">
+                    <span>Ir a Micro 3: Aplicación</span>
+                    <svg class="w-5 h-5 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"></path></svg>
+                </button>
+            </div>
+        </section>
+
+
+        <!-- ==================== MICRO 3: LA APLICACIÓN Y TOMA DE DECISIONES ==================== -->
+        <section id="micro-3" class="space-y-6 animate-fade-in hidden" aria-labelledby="m3-title">
+            <div class="space-y-4">
+                <span class="bg-sena-100 text-sena-800 text-xs px-3 py-1 rounded-full font-bold uppercase tracking-wider">Momento 6: Oportunidad de Desempeño</span>
+                
+                <!-- Imagen antes del Simulador Interactivo de Métodos de Pronóstico -->
+                <div class="w-full flex justify-center">
+                    <img src="IMAGEN/pronóstico+de+la+demanad+con+IA.webp" alt="Simulador Interactivo de Demanda y Métodos Cuantitativos" class="w-full max-w-2xl h-auto max-h-72 object-cover rounded-2xl shadow-md border border-slate-200/80 transition-all duration-300 hover:shadow-lg" onerror="this.src='https://images.unsplash.com/photo-1551836022-d5d88e9218df?auto=format&fit=crop&w=800&q=80'">
+                </div>
+
+                <h2 id="m3-title" class="text-3xl font-extrabold text-slate-900 tracking-tight">Simulador Interactivo de Métodos de Pronóstico</h2>
+                <p class="text-slate-600 text-sm">
+                    Ayuda a la empresa <strong>SENA-Tech</strong> a decidir su plan de producción de computadoras de escritorio para el próximo mes (Mes 4). Analiza el comportamiento histórico de los últimos 3 meses y pon a prueba los dos métodos clave del material técnico:
+                </p>
+            </div>
+
+            <!-- Dashboard del Simulador -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Panel de Datos Históricos & Parámetros -->
+                <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-6">
+                    <div>
+                        <h3 class="text-sm font-bold text-slate-800 uppercase tracking-widest border-b pb-2 mb-4">⚙️ Histórico y Parámetros</h3>
+                        
+                        <!-- Inputs de Demanda Histórica -->
+                        <div class="space-y-3">
+                            <div>
+                                <label for="m1-demand" class="text-xs font-bold text-slate-600 block mb-1">Demanda Mes 1 (Ventas pasadas):</label>
+                                <input type="number" id="m1-demand" value="120" min="1" class="focus-ring w-full border border-slate-300 rounded-lg p-2 text-sm font-semibold text-slate-800" oninput="actualizarSimulador()">
+                            </div>
+                            <div>
+                                <label for="m2-demand" class="text-xs font-bold text-slate-600 block mb-1">Demanda Mes 2 (Ventas pasadas):</label>
+                                <input type="number" id="m2-demand" value="150" min="1" class="focus-ring w-full border border-slate-300 rounded-lg p-2 text-sm font-semibold text-slate-800" oninput="actualizarSimulador()">
+                            </div>
+                            <div>
+                                <label for="m3-demand" class="text-xs font-bold text-slate-600 block mb-1">Demanda Mes 3 (Mes más reciente):</label>
+                                <input type="number" id="m3-demand" value="185" min="1" class="focus-ring w-full border border-slate-300 rounded-lg p-2 text-sm font-semibold text-slate-800" oninput="actualizarSimulador()">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Ponderaciones para Promedio Móvil Ponderado -->
+                    <div class="space-y-3 pt-2">
+                        <span class="text-xs font-bold text-slate-800 uppercase tracking-wider block">Pesos de Importancia ($\omega_i$):</span>
+                        <div class="grid grid-cols-3 gap-2">
+                            <div>
+                                <label for="w1" class="text-[10px] font-bold text-slate-500 block mb-1">Peso M1:</label>
+                                <input type="number" id="w1" value="0.2" step="0.1" min="0" max="1" class="focus-ring w-full border border-slate-300 rounded-lg p-1.5 text-xs text-center font-bold" oninput="validarPesosYActualizar()">
+                            </div>
+                            <div>
+                                <label for="w2" class="text-[10px] font-bold text-slate-500 block mb-1">Peso M2:</label>
+                                <input type="number" id="w2" value="0.3" step="0.1" min="0" max="1" class="focus-ring w-full border border-slate-300 rounded-lg p-1.5 text-xs text-center font-bold" oninput="validarPesosYActualizar()">
+                            </div>
+                            <div>
+                                <label for="w3" class="text-[10px] font-bold text-slate-500 block mb-1">Peso M3 (Reciente):</label>
+                                <input type="number" id="w3" value="0.5" step="0.1" min="0" max="1" class="focus-ring w-full border border-slate-300 rounded-lg p-1.5 text-xs text-center font-bold" oninput="validarPesosYActualizar()">
+                            </div>
+                        </div>
+                        <p id="peso-warning" class="text-[10px] text-rose-600 font-semibold hidden">⚠️ Los pesos deben sumar exactamente 1.0 (Actual: <span id="peso-suma-actual">1.0</span>)</p>
+                    </div>
+                </div>
+
+                <!-- Visualización Gráfica SVG Dinámica -->
+                <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm flex flex-col justify-between">
+                    <div>
+                        <h3 class="text-sm font-bold text-slate-800 uppercase tracking-widest border-b pb-2 mb-4">📈 Tendencia y Previsión (Mes 4)</h3>
+                        <p class="text-xs text-slate-500">Gráfico interactivo de tendencia de ventas históricas proyectado al Mes 4.</p>
+                    </div>
+
+                    <!-- Contenedor del Gráfico SVG Autocalculado -->
+                    <div class="relative h-48 w-full flex items-center justify-center my-4">
+                        <svg id="dynamic-chart" class="w-full h-full" viewBox="0 0 300 150">
+                            <!-- Cuadrícula de fondo -->
+                            <line x1="40" y1="20" x2="280" y2="20" stroke="#f1f5f9" stroke-width="1" />
+                            <line x1="40" y1="50" x2="280" y2="50" stroke="#f1f5f9" stroke-width="1" />
+                            <line x1="40" y1="80" x2="280" y2="80" stroke="#f1f5f9" stroke-width="1" />
+                            <line x1="40" y1="110" x2="280" y2="110" stroke="#e2e8f0" stroke-width="1.5" />
+                            
+                            <!-- Eje X & Eje Y -->
+                            <line x1="40" y1="10" x2="40" y2="110" stroke="#94a3b8" stroke-width="1.5" />
+                            <line x1="40" y1="110" x2="290" y2="110" stroke="#94a3b8" stroke-width="1.5" />
+                            
+                            <!-- Etiquetas de Meses -->
+                            <text x="50" y="125" font-size="8" fill="#64748b" text-anchor="middle">M1</text>
+                            <text x="110" y="125" font-size="8" fill="#64748b" text-anchor="middle">M2</text>
+                            <text x="170" y="125" font-size="8" fill="#64748b" text-anchor="middle">M3</text>
+                            <text x="240" y="125" font-size="8" fill="#16a34a" font-weight="bold" text-anchor="middle">Pronóstico M4</text>
+
+                            <!-- Línea de Demanda Real -->
+                            <path id="svg-real-line" d="M 50 100 L 110 80 L 170 50" fill="none" stroke="#475569" stroke-width="3" stroke-linecap="round" />
+                            
+                            <!-- Líneas de Pronóstico Proyectadas -->
+                            <!-- Pronóstico Promedio Simple -->
+                            <line id="svg-proj-simple" x1="170" y1="50" x2="240" y2="60" stroke="#3b82f6" stroke-width="2.5" stroke-dasharray="4,4" />
+                            <!-- Pronóstico Promedio Ponderado -->
+                            <line id="svg-proj-weighted" x1="170" y1="50" x2="240" y2="55" stroke="#39A900" stroke-width="2.5" stroke-dasharray="4,4" />
+
+                            <!-- Puntos Clave -->
+                            <circle id="p1" cx="50" cy="100" r="4" fill="#475569" />
+                            <circle id="p2" cx="110" cy="80" r="4" fill="#475569" />
+                            <circle id="p3" cx="170" cy="50" r="4" fill="#475569" />
+                            
+                            <!-- Punto del Pronóstico Simple -->
+                            <circle id="ps" cx="240" cy="60" r="4" fill="#3b82f6" />
+                            <!-- Punto del Pronóstico Ponderado -->
+                            <circle id="pw" cx="240" cy="55" r="4" fill="#39A900" />
+                        </svg>
+                    </div>
+
+                    <div class="flex justify-between items-center text-[10px] font-semibold">
+                        <div class="flex items-center space-x-1">
+                            <span class="inline-block w-2.5 h-2.5 bg-slate-600 rounded-full"></span>
+                            <span>Histórico Real</span>
+                        </div>
+                        <div class="flex items-center space-x-1">
+                            <span class="inline-block w-2.5 h-2.5 bg-blue-500 rounded-full"></span>
+                            <span>Pr. Móvil Simple</span>
+                        </div>
+                        <div class="flex items-center space-x-1">
+                            <span class="inline-block w-2.5 h-2.5 bg-sena rounded-full"></span>
+                            <span>Pr. Móvil Ponderado</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Resultados y Desafío de Cálculo Directo -->
+                <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm flex flex-col justify-between space-y-4">
+                    <div>
+                        <h3 class="text-sm font-bold text-slate-800 uppercase tracking-widest border-b pb-2 mb-4">⚖️ Resultados Calculados</h3>
+                        
+                        <div class="space-y-3">
+                            <div class="p-3 bg-blue-50 border border-blue-100 rounded-xl flex justify-between items-center">
+                                <div>
+                                    <h4 class="text-xs font-bold text-blue-900">Promedio Móvil Simple (3 periodos)</h4>
+                                    <p class="text-[10px] text-blue-700 font-medium">$\frac{M_1+M_2+M_3}{3}$</p>
+                                </div>
+                                <span id="res-simple" class="text-xl font-black text-blue-600">151.7</span>
+                            </div>
+
+                            <div class="p-3 bg-sena-50 border border-sena-100 rounded-xl flex justify-between items-center">
+                                <div>
+                                    <h4 class="text-xs font-bold text-sena-800">Promedio Móvil Ponderado (3 periodos)</h4>
+                                    <p class="text-[10px] text-sena-700 font-medium">$\sum(M_i \times \omega_i)$</p>
+                                </div>
+                                <span id="res-weighted" class="text-xl font-black text-sena">161.5</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Minidesafío de Cálculo Manual para Puntos -->
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3">
+                        <span class="text-xs font-extrabold text-slate-700 block uppercase tracking-wider">🎯 Minidesafío Práctico:</span>
+                        <p class="text-xs text-slate-600">
+                            Si las ventas cambian a: <strong>M1 = 100, M2 = 200, M3 = 300</strong>.<br>
+                            ¿Cuál será el valor del <strong>Promedio Móvil Simple</strong> para el Mes 4?
+                        </p>
+                        <div class="flex space-x-2">
+                            <input type="number" id="calc-desafio" placeholder="Tu respuesta..." class="focus-ring w-full border border-slate-300 rounded-lg px-3 py-1.5 text-xs font-bold text-slate-800" aria-label="Ingresa tu respuesta al minidesafío de promedio simple">
+                            <button onclick="validarDesafioPractico()" class="bg-slate-900 hover:bg-slate-800 text-white font-bold px-4 py-1.5 rounded-lg text-xs transition-all-custom">Verificar</button>
+                        </div>
+                        <p id="desafio-feedback" class="text-[10px] font-bold hidden" role="alert"></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CUESTIONARIO COMPRENSIÓN Y TOMA DE DECISIONES CONTEXTUALIZADAS (No memorístico, suma a puntos globales) -->
+            <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-6" role="region" aria-labelledby="decision-titulo">
+                <div class="border-b border-slate-100 pb-3">
+                    <h3 id="decision-titulo" class="text-lg font-bold text-slate-900 flex items-center space-x-2">
+                        <span class="text-indigo-600" aria-hidden="true">🎯</span>
+                        <span>Evaluación de Toma de Decisiones y Análisis Crítico</span>
+                    </h3>
+                    <p class="text-xs text-slate-500 mt-1">Evalúa tu capacidad de análisis como Ingeniero de Operaciones ante escenarios complejos. Cada acierto suma 25 puntos a tu marcador.</p>
+                </div>
+
+                <div class="space-y-6">
+                    <!-- Escenario 1 -->
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3">
+                        <span class="bg-indigo-100 text-indigo-800 text-[10px] font-bold px-2.5 py-1 rounded-full uppercase">Escenario Operativo A</span>
+                        <p class="text-sm font-bold text-slate-800" id="dec-p1-desc">El principal proveedor de microchips de SENA-Tech notifica que por retrasos en puerto su Lead Time (LT) aumentará de 20 a 80 días. ¿Cuál es tu decisión inmediata para mitigar este impacto?</p>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3" role="radiogroup" aria-labelledby="dec-p1-desc">
+                            <button onclick="responderDecision(1, 'correcto')" id="btn-dec-1-A" class="focus-ring p-3 text-left rounded-lg bg-white border border-slate-200 hover:border-indigo-500 hover:bg-slate-50 text-xs font-semibold flex items-center justify-between transition-all-custom" aria-label="Opción A: Ajustar dinámicamente el Stock de Seguridad incrementándolo en función de la venta">
+                                <span>A. Ajustar dinámicamente el Stock de Seguridad ($SS = f(\text{Venta})$) incrementándolo para cubrir la brecha del nuevo Lead Time.</span>
+                                <span id="icon-dec-1-A"></span>
+                            </button>
+                            <button onclick="responderDecision(1, 'incorrecto')" id="btn-dec-1-B" class="focus-ring p-3 text-left rounded-lg bg-white border border-slate-200 hover:border-indigo-500 hover:bg-slate-50 text-xs font-semibold flex items-center justify-between transition-all-custom" aria-label="Opción B: Reducir los precios de venta en un 30 por ciento para salir rápido del inventario actual">
+                                <span>B. Reducir los precios de venta en un 30% para salir rápido del inventario actual y vaciar las bodegas de almacenamiento.</span>
+                                <span id="icon-dec-1-B"></span>
+                            </button>
+                        </div>
+                        <p id="feedback-dec-1" class="hidden p-3 rounded-lg text-xs font-semibold transition-all duration-300"></p>
+                    </div>
+
+                    <!-- Escenario 2 -->
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3">
+                        <span class="bg-indigo-100 text-indigo-800 text-[10px] font-bold px-2.5 py-1 rounded-full uppercase">Escenario Operativo B</span>
+                        <p class="text-sm font-bold text-slate-800" id="dec-p2-desc">El equipo de Previsión Comercial de la fuerza de ventas estima optimistamente que el próximo mes se venderán 300 unidades. Sin embargo, tu modelo cuantitativo de Promedio Móvil Simple de 3 meses proyecta únicamente 150 unidades. ¿Cómo resuelves esta diferencia?</p>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3" role="radiogroup" aria-labelledby="dec-p2-desc">
+                            <button onclick="responderDecision(2, 'incorrecto')" id="btn-dec-2-A" class="focus-ring p-3 text-left rounded-lg bg-white border border-slate-200 hover:border-indigo-500 hover:bg-slate-50 text-xs font-semibold flex items-center justify-between transition-all-custom" aria-label="Opción A: Rechazar de inmediato la previsión cualitativa comercial y planificar la fábrica basándote puramente en tus 150 unidades del modelo cuantitativo">
+                                <span>A. Rechazar de inmediato el reporte comercial y ordenar producir las 150 unidades exactas del promedio móvil, omitiendo al equipo comercial.</span>
+                                <span id="icon-dec-2-A"></span>
+                            </button>
+                            <button onclick="responderDecision(2, 'correcto')" id="btn-dec-2-B" class="focus-ring p-3 text-left rounded-lg bg-white border border-slate-200 hover:border-indigo-500 hover:bg-slate-50 text-xs font-semibold flex items-center justify-between transition-all-custom" aria-label="Opción B: Conciliar ambos insumos usando un modelo cuantitativo ponderado con alto peso en el último mes y evaluando con comercial promociones previstas">
+                                <span>B. Conciliar ambos enfoques. Cruzar los datos del promedio con pesos altos al último mes e indagar si el equipo comercial lanzará campañas promocionales.</span>
+                                <span id="icon-dec-2-B"></span>
+                            </button>
+                        </div>
+                        <p id="feedback-dec-2" class="hidden p-3 rounded-lg text-xs font-semibold transition-all duration-300"></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Botones de Navegación -->
+            <div class="flex justify-between pt-4">
+                <button onclick="irAMicro(2)" class="focus-ring bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold py-3 px-6 rounded-xl flex items-center space-x-2 transition-all-custom">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"></path></svg>
+                    <span>Volver al Contenido</span>
+                </button>
+                <button onclick="irAMicro(4)" class="focus-ring bg-sena hover:bg-sena-700 text-white font-bold py-3 px-6 rounded-xl shadow-md flex items-center space-x-2 transition-all-custom group">
+                    <span>Ir a Micro 4: Evaluación</span>
+                    <svg class="w-5 h-5 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"></path></svg>
+                </button>
+            </div>
+        </section>
+
+
+        <!-- ==================== MICRO 4: GAMIFICACIÓN Y EVALUACIÓN FINAL ==================== -->
+        <section id="micro-4" class="space-y-6 animate-fade-in hidden" aria-labelledby="m4-title">
+            <div class="space-y-4">
+                <span class="bg-sena-100 text-sena-800 text-xs px-3 py-1 rounded-full font-bold uppercase tracking-wider">Momentos 7 y 8: Retroalimentación y Evaluación</span>
+                
+                <!-- Imagen antes de la Evaluación de Competencia Técnica -->
+                <div class="w-full flex justify-center">
+                    <img src="IMAGEN/Screenshot-2019-07-19-at-12.12.28-min.png" alt="Evaluación y Competencia Técnica" class="w-full max-w-2xl h-auto max-h-72 object-cover rounded-2xl shadow-md border border-slate-200/80 transition-all duration-300 hover:shadow-lg" onerror="this.src='https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=800&q=80'">
+                </div>
+
+                <h2 id="m4-title" class="text-3xl font-extrabold text-slate-900 tracking-tight">Evaluación de Competencia Técnica</h2>
+                <p class="text-slate-600 text-sm">
+                    Completa esta breve evaluación interactiva de 5 preguntas sobre los conceptos analizados. Debes responder correctamente al menos 4 de las 5 preguntas para asegurar la aprobación y desbloquear tu <strong>Insignia SENA</strong>.
+                </p>
+            </div>
+
+            <!-- Cuestionario Digital -->
+            <div id="quiz-container" class="space-y-6">
+                <!-- Tarjeta de Pregunta Dinámica -->
+                <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-4">
+                    <div class="flex justify-between items-center border-b pb-2">
+                        <span class="text-xs font-bold text-sena uppercase tracking-widest">Pregunta <span id="current-question-num">1</span> de 5</span>
+                        <span class="text-xs text-slate-400 font-bold" id="quiz-points-preview">Puntos: 0</span>
+                    </div>
+
+                    <!-- Texto de la Pregunta -->
+                    <h3 id="quiz-question-text" class="text-base sm:text-lg font-bold text-slate-800 leading-tight">¿Cuál es el objetivo primordial del pronóstico de demanda en una organización?</h3>
+
+                    <!-- Opciones de Respuesta -->
+                    <div class="grid grid-cols-1 gap-3 pt-2" id="quiz-options-container">
+                        <!-- Generado Dinámicamente por JavaScript -->
+                    </div>
+
+                    <!-- Mensaje de Feedback Inmediato -->
+                    <div id="quiz-feedback" class="hidden p-4 rounded-xl text-xs font-medium border transition-all duration-300">
+                        <!-- Mensaje dinámico de acierto o error de Gagné -->
+                    </div>
+                </div>
+
+                <!-- Navegación interna del Quiz -->
+                <div class="flex justify-between items-center">
+                    <span class="text-xs text-slate-400 font-semibold italic">Recuerda: Tu avance se almacena de forma instantánea.</span>
+                    <button id="btn-next-question" onclick="siguientePregunta()" disabled class="focus-ring bg-slate-300 text-slate-500 font-bold py-2.5 px-5 rounded-xl text-sm transition-all-custom cursor-not-allowed">
+                        Siguiente Pregunta
+                    </button>
+                </div>
+            </div>
+
+            <!-- Momento 9: Retención y Transferencia (Sección de Cierre) -->
+            <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-4">
+                <h3 class="text-sm font-bold text-slate-800 uppercase tracking-wider border-b pb-2 flex items-center space-x-2">
+                    <span class="text-lg" aria-hidden="true">🎯</span>
+                    <span>Momento 9: Plan de Transferencia Profesional</span>
+                </h3>
+                <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">
+                    Los pronósticos no se quedan en el Excel. En tu vida laboral, utilizarás la previsión para mitigar la quiebra técnica de empresas al evitar sobre-inventarios o faltantes de stock que dañen la reputación con los clientes. Te invitamos a descargar esta guía y a aplicar los mismos principios en cualquier taller de manufactura local, analizando las variaciones de su demanda semanal.
+                </p>
+                <div class="flex flex-col sm:flex-row gap-3 pt-2">
+                    <button onclick="copiarAlPortapapeles()" class="bg-slate-900 hover:bg-slate-800 text-white font-bold py-2 px-4 rounded-xl text-xs flex items-center justify-center space-x-2 transition-all-custom">
+                        <span>📋 Copiar Ruta de Aprendizaje</span>
+                    </button>
+                    <a href="https://www.esan.edu.pe/conexion/actualidad/2015/05/11/importancia-implementar-el-uso-de-pronosticos-empresas/" target="_blank" rel="noopener" class="border border-slate-300 hover:bg-slate-50 text-slate-700 font-bold py-2 px-4 rounded-xl text-xs text-center flex items-center justify-center space-x-2 transition-all-custom">
+                        <span>📖 Leer Caso ESAN</span>
+                    </a>
+                </div>
+                <div id="alert-copiado" class="hidden text-[10px] text-emerald-600 font-bold transition-all duration-300 animate-pulse">¡Ruta de aprendizaje copiada al portapapeles con éxito!</div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- FOOTER INSTITUCIONAL -->
+    <footer class="bg-white border-t border-slate-200 py-6 text-center text-xs text-slate-400 mt-auto">
+        <div class="max-w-7xl mx-auto px-4 space-y-2">
+            <p class="font-bold text-slate-500">Servicio Nacional de Aprendizaje (SENA) - Ingeniería y Operaciones Industriales</p>
+            <p>Guía de aprendizaje diseñada bajo estándares DUA, accesibilidad WCAG 2.1 y taxonomía de Robert Gagné.</p>
+        </div>
+    </footer>
+
+
+    <!-- ==================== MODAL DE INSIGNIA DIGITAL (GAMIFICACIÓN) ==================== -->
+    <div id="modal-insignia" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 transition-all duration-300" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+        <div class="bg-white rounded-3xl p-6 sm:p-8 max-w-sm w-full text-center shadow-2xl border border-slate-200 transform scale-95 transition-transform duration-300 ease-out space-y-6">
+            
+            <!-- Confeti / Iconografía de la insignia -->
+            <div class="flex justify-center relative">
+                <div class="absolute -top-10 w-24 h-24 bg-sena-100 rounded-full blur-xl opacity-50 animate-pulse"></div>
+                <div class="bg-sena text-white p-6 rounded-full shadow-lg border-4 border-white inline-flex items-center justify-center z-10 w-20 h-20">
+                    <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"></path>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- Contenido del Modal -->
+            <div class="space-y-2">
+                <span class="text-xs font-bold text-sena uppercase tracking-widest block">Insignia Desbloqueada</span>
+                <h3 id="modal-title" class="text-xl font-extrabold text-slate-900 leading-tight">Experto en Pronósticos de Demanda</h3>
+                <p class="text-xs text-slate-500 leading-relaxed px-2">
+                    ¡Felicidades, Aprendiz SENA! Has completado el 100% de la ruta interactiva de aprendizaje y demostrado suficiencia técnica en modelos cuantitativos.
+                </p>
+            </div>
+
+            <!-- Tabla de Logros obtenidos -->
+            <div class="bg-slate-50 p-3.5 rounded-2xl text-xs space-y-1.5 font-semibold text-slate-600 border border-slate-200">
+                <div class="flex justify-between">
+                    <span>Puntaje Final:</span>
+                    <span class="text-sena" id="final-points">100 pts</span>
+                </div>
+                <div class="flex justify-between">
+                    <span>Desafío Práctico:</span>
+                    <span class="text-blue-600">Superado ✅</span>
+                </div>
+                <div class="flex justify-between">
+                    <span>Tasa de Aciertos:</span>
+                    <span class="text-slate-800" id="final-rate">100%</span>
+                </div>
+            </div>
+
+            <!-- Botones de Acción -->
+            <div class="space-y-2">
+                <button onclick="cerrarInsignia()" class="focus-ring w-full bg-sena hover:bg-sena-700 text-white font-bold py-3 px-4 rounded-xl text-xs shadow-md transition-all-custom">
+                    Continuar y Finalizar
+                </button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ==================== LÓGICA DE CONTROL JAVASCRIPT ==================== -->
+    <script>
+        //        // VARIABLE GLOBAL DE ESTADO (Sistema de Puntos y Progreso)
+        const estadoAprendiz = {
+            puntos: 0,
+            pasosCompletados: [1], // El paso 1 ya está activo al cargar
+            pasoActual: 1,
+            desafioPracticoSuperado: false,
+            conexionRealizada: false,
+            respuestasQuiz: [],
+            preguntaActualIndex: 0,
+            
+            // Seguimiento de evaluación formativa del Micro 2
+            formativaRespuestas: {
+                1: null,
+                2: null,
+                3: null
+            },
+            
+            // Seguimiento de decisiones tomadas en el Micro 3
+            decisionesRespuestas: {
+                1: null,
+                2: null
+            }
+        };
+
+        // BANCO DE PREGUNTAS DE EVALUACIÓN (SENA - Micro 4)
+        const preguntasQuiz = [
+            {
+                pregunta: "¿Cuál es la principal ventaja de utilizar modelos de previsión cuantitativos sobre los cualitativos?",
+                opciones: [
+                    "Aseguran una veracidad absoluta y exacta de las ventas futuras.",
+                    "Ofrecen objetividad, basándose rigurosamente en datos reales históricos del negocio.",
+                    "Son sumamente rápidos de calcular y no requieren estadísticas elaboradas.",
+                    "La responsabilidad del cálculo se delega a los vendedores de campo."
+                ],
+                correcta: 1,
+                pista: "Recuerda que la ventaja principal reside en que los números reflejan la realidad inmediata pasada de manera objetiva."
+            },
+            {
+                pregunta: "En la previsión de inventarios, ¿qué representa la variable 'Stock de Seguridad' (SS)?",
+                opciones: [
+                    "Un porcentaje fijo del presupuesto inamovible para compras anuales.",
+                    "Los pedidos de importación que tardan más de 60 días en tránsito marítimo.",
+                    "Un inventario de amortiguación que depende dinámicamente de la fluctuación del consumo y ventas.",
+                    "La cantidad de stock de repuestos exclusivamente industriales."
+                ],
+                correcta: 2,
+                pista: "El SS no es un porcentaje o cantidad inamovible, está directamente en función de la venta o consumo ($SS = f(Venta)$)."
+            },
+            {
+                pregunta: "¿Cuál de las siguientes variables NO es un factor de mercado incontrolable para una empresa?",
+                opciones: [
+                    "La estrategia de la competencia directa.",
+                    "El precio establecido para el producto de venta.",
+                    "La legislación mercantil e impositiva gubernamental.",
+                    "Las tendencias de moda del consumidor final."
+                ],
+                correcta: 1,
+                pista: "Los factores incontrolables escapan del control de la empresa. El precio sí es controlable al considerar los costos y el margen."
+            },
+            {
+                pregunta: "Si utilizas un Promedio Móvil Ponderado con pesos (0.2, 0.3, 0.5), ¿a cuál periodo le estás dando mayor importancia?",
+                opciones: [
+                    "Al mes más antiguo debido a que marca la tendencia inicial.",
+                    "A todos los meses por igual, ya que la suma de pesos da 1.0.",
+                    "Al mes más reciente porque el peso 0.5 es el de mayor valor porcentual.",
+                    "A las encuestas cualitativas del área comercial."
+                ],
+                correcta: 2,
+                pista: "Los pesos asignados le otorgan mayor relevancia a la información más fresca, y 0.5 es mayor que 0.3 y 0.2."
+            },
+            {
+                pregunta: "¿Para qué sirve un pronóstico de demanda estructurado a corto plazo?",
+                opciones: [
+                    "Para el desarrollo de productos novedosos e investigación tecnológica.",
+                    "Para planificar compras de inventarios y programar la fuerza laboral diaria.",
+                    "Para la localización e instalación de una nueva planta industrial.",
+                    "Para estimar la inflación anual y el crecimiento del PIB de un país."
+                ],
+                correcta: 1,
+                pista: "El corto plazo abarca hasta un año y es ideal para programar operaciones diarias, semanales y mensuales de producción."
+            }
+        ];
+
+        // 1. INICIALIZADOR AL CARGAR LA PÁGINA
+        window.addEventListener('DOMContentLoaded', () => {
+            actualizarSimulador();
+            inicializarPreguntaQuiz();
+            calcularProgreso();
+        });
+
+        // 2. SISTEMA DE NAVEGACIÓN ENTRE MICROS (Single Page App Style)
+        function irAMicro(numeroMicro) {
+            // Ocultar todas las secciones
+            document.getElementById('micro-1').classList.add('hidden');
+            document.getElementById('micro-2').classList.add('hidden');
+            document.getElementById('micro-3').classList.add('hidden');
+            document.getElementById('micro-4').classList.add('hidden');
+
+            // Mostrar sección activa
+            document.getElementById(`micro-${numeroMicro}`).classList.remove('hidden');
+            estadoAprendiz.pasoActual = numeroMicro;
+
+            // Actualizar clase activa en indicador de pasos superior
+            for (let i = 1; i <= 4; i++) {
+                const navItem = document.getElementById(`nav-step-${i}`);
+                const stepCircle = navItem.querySelector('span');
+                
+                if (i === numeroMicro) {
+                    navItem.className = "flex items-center space-x-2 text-sena font-bold border-b-2 border-sena pb-1 transition-all-custom";
+                    stepCircle.className = "flex items-center justify-center w-5 h-5 bg-sena text-white rounded-full text-[10px]";
+                } else if (estadoAprendiz.pasosCompletados.includes(i)) {
+                    navItem.className = "flex items-center space-x-2 text-emerald-800 font-semibold border-b-2 border-transparent pb-1 transition-all-custom cursor-pointer";
+                    stepCircle.className = "flex items-center justify-center w-5 h-5 bg-emerald-100 text-emerald-800 rounded-full text-[10px]";
+                    // Permitir navegación rápida haciendo clic en pasos completados
+                    navItem.setAttribute('onclick', `irAMicro(${i})`);
+                } else {
+                    navItem.className = "flex items-center space-x-2 pb-1 border-b-2 border-transparent transition-all-custom";
+                    stepCircle.className = "flex items-center justify-center w-5 h-5 bg-slate-300 text-slate-700 rounded-full text-[10px]";
+                    navItem.removeAttribute('onclick');
+                }
+            }
+
+            // Marcar paso como desbloqueado
+            if (!estadoAprendiz.pasosCompletados.includes(numeroMicro)) {
+                estadoAprendiz.pasosCompletados.push(numeroMicro);
+            }
+
+            // Publicar anuncio en lector de pantalla
+            anunciarLectorPantalla(`Sección cargada: Microaprendizaje ${numeroMicro}`);
+
+            calcularProgreso();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // 3. ACTUALIZACIÓN DINÁMICA DE PROGRESO
+        function calcularProgreso() {
+            let porcentaje = (estadoAprendiz.pasosCompletados.length / 4) * 100;
+            if (porcentaje > 100) porcentaje = 100;
+            if (porcentaje < 5) porcentaje = 5;
+
+            document.getElementById('progreso-barra-superior').style.width = `${porcentaje}%`;
+            document.getElementById('progreso-texto-superior').innerText = `${Math.round(porcentaje)}%`;
+        }
+
+        // 4. FUNCIÓN AUXILIAR DE ACCESIBILIDAD PARA EL LECTOR DE PANTALLA (WCAG 4.1.3)
+        function anunciarLectorPantalla(texto) {
+            const statusBox = document.getElementById('aria-status-announcer');
+            if (statusBox) {
+                statusBox.textContent = texto;
+            }
+        }
+
+        // 5. LÓGICA DE MICRO 1: EVALUACIÓN DIAGNÓSTICA (Sondeo sin Puntaje)
+        function responderDiagnostico(tipo) {
+            if (estadoAprendiz.conexionRealizada) return;
+
+            estadoAprendiz.conexionRealizada = true;
+            const feedback = document.getElementById('feedback-diagnostico');
+            feedback.classList.remove('hidden');
+
+            // Mensaje neutral que agradece participación y conecta al Micro 2 (Gagné Moment 2)
+            if (tipo === 'incontrolable') {
+                feedback.innerHTML = "<strong>¡Agradecemos tu valiosa participación!</strong> Identificas que la imprevisibilidad de la demanda (factor externo) es el obstáculo principal. Los modelos matemáticos buscan mitigar exactamente esta incertidumbre. Conectemos ahora este análisis previo con los conceptos del siguiente módulo.";
+            } else {
+                feedback.innerHTML = "<strong>¡Agradecemos tu valiosa participación!</strong> Consideras que la alineación interna de precios y distribución es el foco crítico. Estos factores están bajo el control directo del negocio. Avancemos al Micro 2 para estudiar técnicamente la interacción entre ambas variables.";
+            }
+            
+            anunciarLectorPantalla("Respuesta de sondeo diagnóstica guardada correctamente.");
+        }
+
+        // 6. LÓGICA DE MICRO 2: CONTROL DE TABS CONCEPTUALES
+        function cambiarTabContenido(idTab) {
+            for (let i = 1; i <= 3; i++) {
+                const tabBtn = document.getElementById(`tab-btn-${i}`);
+                const tabContent = document.getElementById(`tab-content-${i}`);
+
+                if (i === idTab) {
+                    tabBtn.className = "focus-ring border-sena text-sena py-3 px-1 border-b-2 font-bold text-sm flex items-center space-x-2 transition-all-custom";
+                    tabContent.classList.remove('hidden');
+                } else {
+                    tabBtn.className = "focus-ring border-transparent text-slate-500 hover:text-slate-700 py-3 px-1 border-b-2 font-medium text-sm flex items-center space-x-2 transition-all-custom";
+                    tabContent.classList.add('hidden');
+                }
+            }
+            
+            if (!estadoAprendiz.pasosCompletados.includes(2.5)) {
+                estadoAprendiz.pasosCompletados.push(2.5);
+                sumarPuntos(10);
+            }
+        }
+
+        //        // 7. LÓGICA DE MICRO 2: EVALUACIÓN FORMATIVA (Inmediata, Diferida y de Estado)
+        function responderFormativa(preguntaNum, resultado, opcion) {
+            // Impedir cambiar respuesta una vez enviada
+            if (estadoAprendiz.formativaRespuestas[preguntaNum] !== null) return;
+
+            estadoAprendiz.formativaRespuestas[preguntaNum] = (resultado === 'correcto');
+
+            const btnA = document.getElementById(`btn-fmt-${preguntaNum}-A`);
+            const btnB = document.getElementById(`btn-fmt-${preguntaNum}-B`);
+            const iconA = document.getElementById(`icon-fmt-${preguntaNum}-A`);
+            const iconB = document.getElementById(`icon-fmt-${preguntaNum}-B`);
+            const feedbackBox = document.getElementById(`feedback-fmt-${preguntaNum}`);
+
+            // Desactivar clics e interacciones de teclado
+            btnA.disabled = true;
+            btnB.disabled = true;
+            btnA.classList.add('cursor-not-allowed', 'opacity-80');
+            btnB.classList.add('cursor-not-allowed', 'opacity-80');
+
+            feedbackBox.classList.remove('hidden');
+
+            // Retroalimentación Inmediata con icono ✔️ o ❌ y texto explicativo
+            if (resultado === 'correcto') {
+                document.getElementById(`btn-fmt-${preguntaNum}-${opcion}`).classList.add('border-sena', 'bg-sena-50');
+                if (opcion === 'A') iconA.innerHTML = '<span class="text-sena font-bold">✔️</span>';
+                if (opcion === 'B') iconB.innerHTML = '<span class="text-sena font-bold">✔️</span>';
+
+                feedbackBox.className = "p-3 rounded-lg text-xs font-semibold bg-emerald-50 text-emerald-800 border border-emerald-100 transition-all duration-300";
+                
+                if (preguntaNum === 1) feedbackBox.innerHTML = "<strong>¡Excelente! Respuesta enviada correctamente.</strong> El precio es un factor controlable ya que la gerencia tiene control sobre los márgenes de ganancia.";
+                if (preguntaNum === 2) feedbackBox.innerHTML = "<strong>¡Excelente! Respuesta enviada correctamente.</strong> El stock de seguridad no es inamovible, es dinámico y varía proporcionalmente según las ventas.";
+                if (preguntaNum === 3) feedbackBox.innerHTML = "<strong>¡Excelente! Respuesta enviada correctamente.</strong> Ante la ausencia de datos históricos, la previsión por juicio de expertos o encuestas es la opción recomendada.";
+                
+                sumarPuntos(10);
+            } else {
+                document.getElementById(`btn-fmt-${preguntaNum}-${opcion}`).classList.add('border-rose-500', 'bg-rose-50');
+                if (opcion === 'A') iconA.innerHTML = '<span class="text-rose-600 font-bold">❌</span>';
+                if (opcion === 'B') iconB.innerHTML = '<span class="text-rose-600 font-bold">❌</span>';
+
+                feedbackBox.className = "p-3 rounded-lg text-xs font-semibold bg-rose-50 text-rose-800 border border-rose-100 transition-all duration-300";
+                
+                if (preguntaNum === 1) feedbackBox.innerHTML = "<strong>¡Inténtalo en otra ocasión! Respuesta enviada correctamente.</strong> Las modas y tendencias son incontrolables para la empresa pues dependen exclusivamente del consumidor.";
+                if (preguntaNum === 2) feedbackBox.innerHTML = "<strong>¡Inténtalo en otra ocasión! Respuesta enviada correctamente.</strong> Configurar un stock estático anual expone a la empresa a sobrestock o quiebres.";
+                if (preguntaNum === 3) feedbackBox.innerHTML = "<strong>¡Inténtalo en otra ocasión! Respuesta enviada correctamente.</strong> El modelo de Regresión Lineal es cuantitativo y requiere de una base sólida de datos históricos.";
+            }
+
+            // Mensaje de Estado (WCAG 4.1.3) sin alterar el foco actual de pantalla
+            anunciarLectorPantalla(`Respuesta enviada correctamente para la pregunta ${preguntaNum}.`);
+
+            // Verificar si finalizó todas las formativas para lanzar retroalimentación diferida (Resumen)
+            comprobarFinalizacionFormativa();
+        }
+
+        function comprobarFinalizacionFormativa() {
+            const resp = estadoAprendiz.formativaRespuestas;
+            if (resp[1] !== null && resp[2] !== null && resp[3] !== null) {
+                // Mostrar pantalla de resumen (Diferida)
+                const resumenBox = document.getElementById('resumen-diferido-m2');
+                const listaRefuerzo = document.getElementById('lista-refuerzo');
+                listaRefuerzo.innerHTML = '';
+                resumenBox.classList.remove('hidden');
+
+                let todoCorrecto = true;
+
+                // Analizar fallos y recomendar materiales de los tabs
+                if (resp[1] === false) {
+                    todoCorrecto = false;
+                    const li = document.createElement('li');
+                    li.className = "flex items-start space-x-2 text-rose-800 bg-rose-50 p-2 rounded-lg border border-rose-100 mb-2";
+                    li.innerHTML = "<span>⚠️</span> <span><strong>Área a reforzar:</strong> Factores de mercado. Se sugiere revisar la <strong>Pestaña 1: Factores y Horizontes</strong> antes de avanzar a la aplicación práctica.</span>";
+                    listaRefuerzo.appendChild(li);
+                }
+                if (resp[2] === false) {
+                    todoCorrecto = false;
+                    const li = document.createElement('li');
+                    li.className = "flex items-start space-x-2 text-rose-800 bg-rose-50 p-2 rounded-lg border border-rose-100 mb-2";
+                    li.innerHTML = "<span>⚠️</span> <span><strong>Área a reforzar:</strong> Stock de Seguridad (SS). Se sugiere revisar la <strong>Pestaña 2: Variables Críticas</strong> para comprender su comportamiento dinámico.</span>";
+                    listaRefuerzo.appendChild(li);
+                }
+                if (resp[3] === false) {
+                    todoCorrecto = false;
+                    const li = document.createElement('li');
+                    li.className = "flex items-start space-x-2 text-rose-800 bg-rose-50 p-2 rounded-lg border border-rose-100 mb-2";
+                    li.innerHTML = "<span>⚠️</span> <span><strong>Área a reforzar:</strong> Métodos Cualitativos. Se sugiere revisar la <strong>Pestaña 3: Modelos Matemáticos</strong> para analizar cuándo usar modelos cualitativos.</span>";
+                    listaRefuerzo.appendChild(li);
+                }
+
+                if (todoCorrecto) {
+                    const li = document.createElement('li');
+                    li.className = "flex items-start space-x-2 text-emerald-800 bg-emerald-50 p-2 rounded-lg border border-emerald-100";
+                    li.innerHTML = "<span>🎉</span> <span><strong>¡Excelente desempeño formativo!</strong> Has respondido con total asertividad técnica. Estás perfectamente preparado para aplicar la simulación del Micro 3.</span>";
+                    listaRefuerzo.appendChild(li);
+                }
+
+                anunciarLectorPantalla("Evaluación formativa finalizada. Resumen de plan de refuerzo generado al final del Micro 2.");
+            }
+        }
+
+
+        //        // 8. LÓGICA DE MICRO 3: SIMULADOR DE PRONÓSTICOS DE DEMANDA
+        function actualizarSimulador() {
+            const d1 = parseFloat(document.getElementById('m1-demand').value) || 0;
+            const d2 = parseFloat(document.getElementById('m2-demand').value) || 0;
+            const d3 = parseFloat(document.getElementById('m3-demand').value) || 0;
+
+            const w1 = parseFloat(document.getElementById('w1').value) || 0;
+            const w2 = parseFloat(document.getElementById('w2').value) || 0;
+            const w3 = parseFloat(document.getElementById('w3').value) || 0;
+
+            const pSimple = (d1 + d2 + d3) / 3;
+            document.getElementById('res-simple').innerText = pSimple.toFixed(1);
+
+            const pWeighted = (d1 * w1) + (d2 * w2) + (d3 * w3);
+            document.getElementById('res-weighted').innerText = pWeighted.toFixed(1);
+
+            actualizarGraficoSVG(d1, d2, d3, pSimple, pWeighted);
+        }
+
+        function validarPesosYActualizar() {
+            const w1 = parseFloat(document.getElementById('w1').value) || 0;
+            const w2 = parseFloat(document.getElementById('w2').value) || 0;
+            const w3 = parseFloat(document.getElementById('w3').value) || 0;
+
+            const suma = w1 + w2 + w3;
+            const warningElement = document.getElementById('peso-warning');
+            const sumaActualSpan = document.getElementById('peso-suma-actual');
+
+            if (Math.abs(suma - 1.0) > 0.001) {
+                warningElement.classList.remove('hidden');
+                sumaActualSpan.innerText = suma.toFixed(1);
+            } else {
+                warningElement.classList.add('hidden');
+                actualizarSimulador();
+            }
+        }
+
+        function actualizarGraficoSVG(d1, d2, d3, ps, pw) {
+            const maxVal = Math.max(d1, d2, d3, ps, pw, 100) * 1.2;
+            const escalaY = (val) => 110 - (val / maxVal) * 90;
+
+            const y1 = escalaY(d1);
+            const y2 = escalaY(d2);
+            const y3 = escalaY(d3);
+            const y_ps = escalaY(ps);
+            const y_pw = escalaY(pw);
+
+            document.getElementById('p1').setAttribute('cy', y1);
+            document.getElementById('p2').setAttribute('cy', y2);
+            document.getElementById('p3').setAttribute('cy', y3);
+            document.getElementById('ps').setAttribute('cy', y_ps);
+            document.getElementById('pw').setAttribute('cy', y_pw);
+
+            document.getElementById('svg-real-line').setAttribute('d', `M 50 ${y1} L 110 ${y2} L 170 ${y3}`);
+            
+            document.getElementById('svg-proj-simple').setAttribute('y1', y3);
+            document.getElementById('svg-proj-simple').setAttribute('y2', y_ps);
+
+            document.getElementById('svg-proj-weighted').setAttribute('y1', y3);
+            document.getElementById('svg-proj-weighted').setAttribute('y2', y_pw);
+        }
+
+        function validarDesafioPractico() {
+            if (estadoAprendiz.desafioPracticoSuperado) return;
+
+            const respuestaIngresada = parseFloat(document.getElementById('calc-desafio').value);
+            const feedback = document.getElementById('desafio-feedback');
+            feedback.classList.remove('hidden');
+
+            if (respuestaIngresada === 200) {
+                feedback.className = "text-[10px] font-bold text-emerald-600";
+                feedback.innerText = "¡Excelente! Has resuelto el cálculo perfectamente de forma analítica.";
+                estadoAprendiz.desafioPracticoSuperado = true;
+                sumarPuntos(25);
+            } else {
+                feedback.className = "text-[10px] font-bold text-rose-600";
+                feedback.innerText = "¡Inténtalo de nuevo! Pista: suma 100 + 200 + 300 y divídelo entre 3.";
+            }
+        }
+
+        // 9. LÓGICA DE MICRO 3: CUESTIONARIO DE TOMA DE DECISIONES OPERACIONALES (Suma puntos)
+        function responderDecision(preguntaNum, resultado) {
+            if (estadoAprendiz.decisionesRespuestas[preguntaNum] !== null) return;
+
+            estadoAprendiz.decisionesRespuestas[preguntaNum] = (resultado === 'correcto');
+
+            const btnA = document.getElementById(`btn-dec-${preguntaNum}-A`);
+            const btnB = document.getElementById(`btn-dec-${preguntaNum}-B`);
+            const feedbackBox = document.getElementById(`feedback-dec-${preguntaNum}`);
+
+            btnA.disabled = true;
+            btnB.disabled = true;
+            btnA.classList.add('cursor-not-allowed', 'opacity-80');
+            btnB.classList.add('cursor-not-allowed', 'opacity-80');
+
+            feedbackBox.classList.remove('hidden');
+
+            if (resultado === 'correcto') {
+                document.getElementById(`btn-dec-${preguntaNum}-B`).classList.add('border-sena', 'bg-sena-50');
+                if (preguntaNum === 1) {
+                    document.getElementById(`btn-dec-1-A`).classList.add('border-sena', 'bg-sena-50');
+                    document.getElementById(`btn-dec-1-B`).classList.remove('border-indigo-500');
+                }
+                
+                feedbackBox.className = "p-3 rounded-lg text-xs font-semibold bg-emerald-50 text-emerald-800 border border-emerald-100 transition-all duration-300";
+                
+                if (preguntaNum === 1) feedbackBox.innerHTML = "<strong>¡Excelente análisis analítico! (+25 puntos)</strong> Ajustar el Stock de Seguridad compensa la tardanza del proveedor, salvaguardando la continuidad operativa.";
+                if (preguntaNum === 2) feedbackBox.innerHTML = "<strong>¡Excelente análisis analítico! (+25 puntos)</strong> El trabajo conjunto permite balancear los datos duros matemáticos con los picos previstos por el área comercial.";
+                
+                sumarPuntos(25);
+            } else {
+                document.getElementById(`btn-dec-${preguntaNum}-A`).classList.add('border-rose-500', 'bg-rose-50');
+                if (preguntaNum === 2) {
+                    document.getElementById(`btn-dec-2-A`).classList.add('border-rose-500', 'bg-rose-50');
+                    document.getElementById(`btn-dec-2-B`).classList.remove('border-indigo-500');
+                }
+
+                feedbackBox.className = "p-3 rounded-lg text-xs font-semibold bg-rose-50 text-rose-800 border border-rose-100 transition-all duration-300";
+                
+                if (preguntaNum === 1) feedbackBox.innerHTML = "<strong>¡Cuidado con la decisión!</strong> Bajar precios acelerará la demanda, empeorando el quiebre de stock por el retraso del proveedor.";
+                if (preguntaNum === 2) feedbackBox.innerHTML = "<strong>¡Cuidado con la decisión!</strong> Descartar las estimaciones comerciales te ciega ante nuevas licitaciones o promociones que el promedio histórico no puede prever.";
+            }
+
+            anunciarLectorPantalla(`Respuesta de toma de decisión procesada para escenario ${preguntaNum}.`);
+        }
+
+
+        //        // 10. LÓGICA DE MICRO 4: CUESTIONARIO GAMIFICADO DE CERTIFICACIÓN
+        function inicializarPreguntaQuiz() {
+            const pregunta = preguntasQuiz[estadoAprendiz.preguntaActualIndex];
+            document.getElementById('current-question-num').innerText = estadoAprendiz.preguntaActualIndex + 1;
+            document.getElementById('quiz-question-text').innerText = pregunta.pregunta;
+
+            const optionsContainer = document.getElementById('quiz-options-container');
+            optionsContainer.innerHTML = '';
+
+            const feedbackBox = document.getElementById('quiz-feedback');
+            feedbackBox.classList.add('hidden');
+
+            const btnNext = document.getElementById('btn-next-question');
+            btnNext.disabled = true;
+            btnNext.className = "focus-ring bg-slate-300 text-slate-500 font-bold py-2.5 px-5 rounded-xl text-sm transition-all-custom cursor-not-allowed";
+
+            pregunta.opciones.forEach((opcion, index) => {
+                const btn = document.createElement('button');
+                btn.className = "focus-ring w-full text-left p-4 border border-slate-200 hover:border-sena hover:bg-slate-50 rounded-xl transition-all-custom text-xs sm:text-sm font-semibold text-slate-700 flex items-center space-x-3";
+                btn.setAttribute('onclick', `validarRespuestaQuiz(${index})`);
+                btn.setAttribute('aria-label', `Opción ${index + 1}: ${opcion}`);
+                btn.innerHTML = `<span class="flex-shrink-0 w-6 h-6 rounded-full border border-slate-300 flex items-center justify-center font-bold text-[10px] text-slate-500 bg-white group-hover:border-sena">${String.fromCharCode(65 + index)}</span> <span>${opcion}</span>`;
+                optionsContainer.appendChild(btn);
+            });
+        }
+
+        function validarRespuestaQuiz(indexSeleccionado) {
+            const pregunta = preguntasQuiz[estadoAprendiz.preguntaActualIndex];
+            const feedbackBox = document.getElementById('quiz-feedback');
+            const optionsContainer = document.getElementById('quiz-options-container');
+            
+            const botones = optionsContainer.querySelectorAll('button');
+            botones.forEach(btn => btn.removeAttribute('onclick'));
+
+            feedbackBox.classList.remove('hidden');
+
+            if (indexSeleccionado === pregunta.correcta) {
+                feedbackBox.className = "p-4 rounded-xl text-xs font-semibold border bg-emerald-50 text-emerald-800 border-emerald-100 transition-all duration-300";
+                feedbackBox.innerHTML = `<strong>¡Excelente!</strong> Has dominado el concepto técnico. <br><span class="font-medium text-slate-600">${pregunta.pista}</span>`;
+                estadoAprendiz.respuestasQuiz.push(true);
+                sumarPuntos(15);
+            } else {
+                feedbackBox.className = "p-4 rounded-xl text-xs font-semibold border bg-rose-50 text-rose-800 border-rose-100 transition-all duration-300";
+                feedbackBox.innerHTML = `<strong>¡Inténtalo de nuevo en tu siguiente intento!</strong> Pista: ${pregunta.pista}`;
+                estadoAprendiz.respuestasQuiz.push(false);
+            }
+
+            const btnNext = document.getElementById('btn-next-question');
+            btnNext.disabled = false;
+            btnNext.className = "focus-ring bg-slate-900 hover:bg-slate-800 text-white font-bold py-2.5 px-5 rounded-xl text-sm transition-all-custom cursor-pointer";
+            
+            anunciarLectorPantalla(`Respuesta de certificación procesada.`);
+        }
+
+        function siguientePregunta() {
+            if (estadoAprendiz.preguntaActualIndex < preguntasQuiz.length - 1) {
+                estadoAprendiz.preguntaActualIndex++;
+                inicializarPreguntaQuiz();
+            } else {
+                evaluarFinalizacionQuiz();
+            }
+        }
+
+        function evaluarFinalizacionQuiz() {
+            const aciertos = estadoAprendiz.respuestasQuiz.filter(Boolean).length;
+            const tasaAciertos = (aciertos / preguntasQuiz.length) * 100;
+
+            if (aciertos >= 4) {
+                document.getElementById('final-points').innerText = `${estadoAprendiz.puntos} pts`;
+                document.getElementById('final-rate').innerText = `${tasaAciertos}%`;
+                
+                const modal = document.getElementById('modal-insignia');
+                modal.classList.remove('hidden');
+                
+                anunciarLectorPantalla("Felicidades. Evaluaciones completadas. Insignia ganada.");
+            } else {
+                alert("Has completado la evaluación pero no has alcanzado el 80% mínimo de aciertos requerido. ¡Reiniciaremos el cuestionario para darte la oportunidad de mejorar!");
+                reiniciarQuiz();
+            }
+        }
+
+        function reiniciarQuiz() {
+            estadoAprendiz.preguntaActualIndex = 0;
+            estadoAprendiz.respuestasQuiz = [];
+            inicializarPreguntaQuiz();
+        }
+
+        function cerrarInsignia() {
+            document.getElementById('modal-insignia').classList.add('hidden');
+        }
+
+        function copiarAlPortapapeles() {
+            const textoRuta = "Ruta de Aprendizaje SENA: Pronósticos en las Empresas. Modelos cubiertos: Promedio Móvil Simple, Ponderado, Clasificación de Horizontes, Variables Críticas (On Hand, SS, LT, Back Log).";
+            
+            const textElement = document.createElement('textarea');
+            textElement.value = textoRuta;
+            document.body.appendChild(textElement);
+            textElement.select();
+            document.execCommand('copy');
+            document.body.removeChild(textElement);
+
+            const alert = document.getElementById('alert-copiado');
+            alert.classList.remove('hidden');
+            setTimeout(() => { alert.classList.add('hidden'); }, 3000);
+        }
+
+        function sumarPuntos(cantidad) {
+            estadoAprendiz.puntos += cantidad;
+            document.getElementById('puntos-globales').innerText = estadoAprendiz.puntos;
+            document.getElementById('quiz-points-preview').innerText = `Puntos: ${estadoAprendiz.puntos}`;
+        }
+    </script>
+</body>
+</html>
